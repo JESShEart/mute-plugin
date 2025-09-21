@@ -1,4 +1,4 @@
-# Spectrum Commercial Skipper
+# Spectrum Mute Timer
 
 ![Icon](icon128.png) <!-- Replace with your actual icon path if you want to display it in the README -->
 
