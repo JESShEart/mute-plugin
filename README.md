@@ -63,7 +63,7 @@ This extension is not published to the Chrome Web Store. To install it manually 
 
 ## Usage
 
-1. **During a Live Stream or Game**:  
+1. **When viewing Live TV**:  
    - When commercials start, press **3** (30 seconds), **2** (2 minutes), or **1** (1 minute) to activate the overlay.  
    - The video mutes, a black cover appears, and a large bouncing timer starts counting down.  
    - The timer text changes colors every 2 seconds and moves steadily around the screen.  
@@ -76,15 +76,11 @@ This extension is not published to the Chrome Web Store. To install it manually 
 3. **Cursor Hiding**:  
    - The mouse cursor hides during inactivity on the page for immersion (moves on hover/click).  
 
-**Pro Tip**: Test on a non-critical stream first. The extension doesn’t affect video playback—it just mutes and covers the player element.
-
 ## Screenshots
 
 <!-- Add screenshots here for better visualization. Upload images to a `screenshots/` folder in the repo and reference them. Examples: -->
 ![Active Timer Overlay](screenshots/timer-overlay.png)  
 ![Bouncing Timer in Action](screenshots/bouncing-timer.gif)  
-
-(Upload GIFs or PNGs to a `screenshots/` folder and update the paths.)
 
 ## Troubleshooting
 
