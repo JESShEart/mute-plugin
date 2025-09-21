@@ -133,11 +133,6 @@ Pull requests welcome! For major changes, open an issue first.
 
 MIT License - see [LICENSE](LICENSE) (add one if not present).  
 
-## Acknowledgments
-
-- Built with help from Grok (xAI) for debugging and features.  
-- Thanks to Spectrum TV users tired of endless commercials!  
-
 ---
 
 *Last updated: September 21, 2025, 05:51 PM EDT*
