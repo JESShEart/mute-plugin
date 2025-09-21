@@ -6,7 +6,7 @@ A Chrome extension that mutes and covers the Spectrum TV video player during com
 - **3**: Start/stop a 30-second timer
   - For "30 second time outs"
 - **2**: Start/stop a 2-minute timer (for comme
-  - For all commercial breaks, change of posession, full timeouts, 2 mins warning, etc.
+  - For all commercial breaks: change of posession, full timeouts, injury timeouts, 2 mins warning, etc.
 - **1**: Start a 1-minute timer or add 1 minute to the current one
   - For creating a custom length timer, use however you see fit
 
