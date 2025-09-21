@@ -2,10 +2,13 @@
 
 ![Icon](icon128.png) <!-- Replace with your actual icon path if you want to display it in the README -->
 
-A Chrome extension that mutes and covers the Spectrum TV video player during commercial breaks, featuring a bouncing countdown timer with color cycling for OLED TV protection. Use hotkeys to skip ads:  
-- **3**: Start/stop a 30-second timer  
-- **2**: Start/stop a 2-minute timer  
-- **1**: Start a 1-minute timer or add 1 minute to the current one  
+A Chrome extension that mutes and covers the Spectrum TV video player during commercial breaks, featuring a bouncing countdown timer with color cycling for OLED TV protection. Ideal for watching NFL Football games.  Use hotkeys to skip ads:  
+- **3**: Start/stop a 30-second timer
+  - For "30 second time outs"
+- **2**: Start/stop a 2-minute timer (for comme
+  - For all commercial breaks, change of posession, full timeouts, 2 mins warning, etc.
+- **1**: Start a 1-minute timer or add 1 minute to the current one
+  - For creating a custom length timer, use however you see fit
 
 This extension is designed for Spectrum TV users who want to automate muting and screen covering during commercials, with built-in safeguards like cursor hiding and anti-burn-in features for OLED displays.
 
