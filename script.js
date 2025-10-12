@@ -210,11 +210,6 @@
         secondsLeft = durationInSeconds;
         countdownSpan.textContent = formatTime(secondsLeft);
         
-        // Reset alignment state
-        alignmentState = 'full';
-        coverDiv.style.width = '100%';
-        coverDiv.style.left = '0';
-        
         // Randomize starting position and direction
         randomizeStart();
         
