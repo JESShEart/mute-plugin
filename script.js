@@ -12,6 +12,7 @@
     let colorCycleInterval = null;
     let animationFrameId = null;
     let currentColorIndex = 0;
+    let alignmentState = 'full'; // 'full', 'left', or 'right'
 
     // Color palette for OLED burn-in protection (darker, richer colors on black)
     const colors = [
@@ -154,6 +155,25 @@
         appendCoverToPlayer();
     }
 
+    // Function to toggle overlay width and alignment
+    function toggleAlignment(direction) {
+        if (!coverDiv || coverDiv.style.display === 'none' || !['left', 'right'].includes(direction)) return;
+
+        const targetState = direction === 'left' ? 'right' : 'left';
+        if (alignmentState === targetState) {
+            // Restore to full width
+            coverDiv.style.width = '100%';
+            coverDiv.style.left = '0';
+            alignmentState = 'full';
+        } else {
+            // Shrink to 66% with appropriate alignment
+            coverDiv.style.width = '66%';
+            coverDiv.style.left = direction === 'left' ? '34%' : '0';
+            alignmentState = targetState;
+        }
+        randomizeStart(); // Adjust bouncing position for new dimensions
+    }
+
     // Function to start commercial break handling
     function startCommercialBreak(durationInSeconds) {
         videoElement = getVideoElement();
@@ -264,9 +284,12 @@
         countdownSpan.style.color = colors[0];
 
         secondsLeft = 0;
+        alignmentState = 'full';
+        coverDiv.style.width = '100%';
+        coverDiv.style.left = '0';
     }
 
-    // Hotkey listener for muting/unmuting and extending timer
+    // Hotkey listener for muting/unmuting, extending timer, and toggling alignment
     document.addEventListener('keydown', function(event) {
         if (event.key === '3') { // 30 seconds
             isMuted ? endCommercialBreak() : startCommercialBreak(30);
@@ -274,6 +297,10 @@
             isMuted ? endCommercialBreak() : startCommercialBreak(120);
         } else if (event.key === '1') { // 1 minute or add 1 minute
             handleOneMinuteKey();
+        } else if (event.key === 'ArrowLeft') { // Left arrow to toggle right-aligned 66% width
+            toggleAlignment('left');
+        } else if (event.key === 'ArrowRight') { // Right arrow to toggle left-aligned 66% width
+            toggleAlignment('right');
         }
     });
 
