@@ -19,7 +19,9 @@ This extension is designed for Spectrum TV users who want to automate muting and
 - **Hotkey Controls**:  
   - Press **3** to mute/cover for 30 seconds (toggle on/off).  
   - Press **2** to mute/cover for 2 minutes (toggle on/off).  
-  - Press **1** to start a 1-minute timer (or extend the current timer by 1 minute if active).  
+  - Press **1** to start a 1-minute timer (or extend the current timer by 1 minute if active).
+  - Press ArrowLeft to toggle the overlay to 66% width (right-aligned) or back to full width.
+  - Press ArrowRight to toggle the overlay to 66% width (left-aligned) or back to full width.
 
 - **Visual Feedback**: A large, bouncing countdown timer (MM:SS format) displays on a black overlay, preventing accidental viewing of ads.  
 
