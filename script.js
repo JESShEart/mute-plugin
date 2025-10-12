@@ -12,6 +12,8 @@
     let colorCycleInterval = null;
     let animationFrameId = null;
     let currentColorIndex = 0;
+    let isLeftAligned = false;
+    let isRightAligned = false;
 
     // Color palette for OLED burn-in protection (darker, richer colors on black)
     const colors = [
@@ -154,6 +156,46 @@
         appendCoverToPlayer();
     }
 
+    // Function to toggle overlay width and alignment for left arrow
+    function toggleLeftAlign() {
+        if (!coverDiv || coverDiv.style.display === 'none') return;
+
+        if (isRightAligned) {
+            // Restore to full width
+            coverDiv.style.width = '100%';
+            coverDiv.style.left = '0';
+            isRightAligned = false;
+            randomizeStart(); // Reset bouncing position
+        } else {
+            // Shrink to 66% and align right
+            coverDiv.style.width = '66%';
+            coverDiv.style.left = '34%';
+            isRightAligned = true;
+            isLeftAligned = false;
+            randomizeStart(); // Adjust bouncing position for new dimensions
+        }
+    }
+
+    // Function to toggle overlay width and alignment for right arrow
+    function toggleRightAlign() {
+        if (!coverDiv || coverDiv.style.display === 'none') return;
+
+        if (isLeftAligned) {
+            // Restore to full width
+            coverDiv.style.width = '100%';
+            coverDiv.style.left = '0';
+            isLeftAligned = false;
+            randomizeStart(); // Reset bouncing position
+        } else {
+            // Shrink to 66% and align left
+            coverDiv.style.width = '66%';
+            coverDiv.style.left = '0';
+            isLeftAligned = true;
+            isRightAligned = false;
+            randomizeStart(); // Adjust bouncing position for new dimensions
+        }
+    }
+
     // Function to start commercial break handling
     function startCommercialBreak(durationInSeconds) {
         videoElement = getVideoElement();
@@ -189,6 +231,12 @@
         cover.style.display = 'block'; // Use block to allow absolute positioning of child
         secondsLeft = durationInSeconds;
         countdownSpan.textContent = formatTime(secondsLeft);
+        
+        // Reset alignment states
+        isLeftAligned = false;
+        isRightAligned = false;
+        coverDiv.style.width = '100%';
+        coverDiv.style.left = '0';
         
         // Randomize starting position and direction
         randomizeStart();
@@ -264,9 +312,13 @@
         countdownSpan.style.color = colors[0];
 
         secondsLeft = 0;
+        isLeftAligned = false;
+        isRightAligned = false;
+        coverDiv.style.width = '100%';
+        coverDiv.style.left = '0';
     }
 
-    // Hotkey listener for muting/unmuting and extending timer
+    // Hotkey listener for muting/unmuting, extending timer, and toggling alignment
     document.addEventListener('keydown', function(event) {
         if (event.key === '3') { // 30 seconds
             isMuted ? endCommercialBreak() : startCommercialBreak(30);
@@ -274,6 +326,10 @@
             isMuted ? endCommercialBreak() : startCommercialBreak(120);
         } else if (event.key === '1') { // 1 minute or add 1 minute
             handleOneMinuteKey();
+        } else if (event.key === 'ArrowLeft') { // Left arrow to toggle right-aligned 66% width
+            toggleLeftAlign();
+        } else if (event.key === 'ArrowRight') { // Right arrow to toggle left-aligned 66% width
+            toggleRightAlign();
         }
     });
 
