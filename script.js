@@ -12,8 +12,7 @@
     let colorCycleInterval = null;
     let animationFrameId = null;
     let currentColorIndex = 0;
-    let isLeftAligned = false;
-    let isRightAligned = false;
+    let alignmentState = 'full'; // 'full', 'left', or 'right'
 
     // Color palette for OLED burn-in protection (darker, richer colors on black)
     const colors = [
@@ -156,44 +155,36 @@
         appendCoverToPlayer();
     }
 
-    // Function to toggle overlay width and alignment for left arrow
-    function toggleLeftAlign() {
+    // Function to toggle overlay width and alignment
+    function toggleAlignment(direction) {
         if (!coverDiv || coverDiv.style.display === 'none') return;
 
-        if (isRightAligned) {
-            // Restore to full width
-            coverDiv.style.width = '100%';
-            coverDiv.style.left = '0';
-            isRightAligned = false;
-            randomizeStart(); // Reset bouncing position
-        } else {
-            // Shrink to 66% and align right
-            coverDiv.style.width = '66%';
-            coverDiv.style.left = '34%';
-            isRightAligned = true;
-            isLeftAligned = false;
-            randomizeStart(); // Adjust bouncing position for new dimensions
+        if (direction === 'left') {
+            if (alignmentState === 'right') {
+                // Restore to full width
+                coverDiv.style.width = '100%';
+                coverDiv.style.left = '0';
+                alignmentState = 'full';
+            } else {
+                // Shrink to 66% and align right
+                coverDiv.style.width = '66%';
+                coverDiv.style.left = '34%';
+                alignmentState = 'right';
+            }
+        } else if (direction === 'right') {
+            if (alignmentState === 'left') {
+                // Restore to full width
+                coverDiv.style.width = '100%';
+                coverDiv.style.left = '0';
+                alignmentState = 'full';
+            } else {
+                // Shrink to 66% and align left
+                coverDiv.style.width = '66%';
+                coverDiv.style.left = '0';
+                alignmentState = 'left';
+            }
         }
-    }
-
-    // Function to toggle overlay width and alignment for right arrow
-    function toggleRightAlign() {
-        if (!coverDiv || coverDiv.style.display === 'none') return;
-
-        if (isLeftAligned) {
-            // Restore to full width
-            coverDiv.style.width = '100%';
-            coverDiv.style.left = '0';
-            isLeftAligned = false;
-            randomizeStart(); // Reset bouncing position
-        } else {
-            // Shrink to 66% and align left
-            coverDiv.style.width = '66%';
-            coverDiv.style.left = '0';
-            isLeftAligned = true;
-            isRightAligned = false;
-            randomizeStart(); // Adjust bouncing position for new dimensions
-        }
+        randomizeStart(); // Adjust bouncing position for new dimensions
     }
 
     // Function to start commercial break handling
@@ -232,9 +223,8 @@
         secondsLeft = durationInSeconds;
         countdownSpan.textContent = formatTime(secondsLeft);
         
-        // Reset alignment states
-        isLeftAligned = false;
-        isRightAligned = false;
+        // Reset alignment state
+        alignmentState = 'full';
         coverDiv.style.width = '100%';
         coverDiv.style.left = '0';
         
@@ -312,8 +302,7 @@
         countdownSpan.style.color = colors[0];
 
         secondsLeft = 0;
-        isLeftAligned = false;
-        isRightAligned = false;
+        alignmentState = 'full';
         coverDiv.style.width = '100%';
         coverDiv.style.left = '0';
     }
@@ -327,9 +316,9 @@
         } else if (event.key === '1') { // 1 minute or add 1 minute
             handleOneMinuteKey();
         } else if (event.key === 'ArrowLeft') { // Left arrow to toggle right-aligned 66% width
-            toggleLeftAlign();
+            toggleAlignment('left');
         } else if (event.key === 'ArrowRight') { // Right arrow to toggle left-aligned 66% width
-            toggleRightAlign();
+            toggleAlignment('right');
         }
     });
 
