@@ -96,11 +96,14 @@ If issues persist, open an issue on this repo or check the browser’s extension
 
 ## Changelog
 
-- **v1.1.0 (September 21, 2025)**:  
+- **v1.1.0 (October 21, 2025)**:  
   - Added bouncing timer with color cycling for OLED protection.  
   - Implemented hotkeys: '3' (30s), '2' (2m), '1' (1m or +1m).  
   - Fixed premature overlay closure bug.  
   - Enhanced cursor hiding during inactivity.  
+
+- **v1.1.0 (September 12, 2025)**:  
+  - Added arrow left/right hotkeys to allow watching of the game when the TV broadcast does a picture in picture showing a commercial on one side of the screen.  66% of the screen will be blocked on either side and it will remain muted.
 
 - **v1.0.0**: Initial release with basic muting functionality.
 
