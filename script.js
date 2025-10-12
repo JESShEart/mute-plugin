@@ -157,32 +157,19 @@
 
     // Function to toggle overlay width and alignment
     function toggleAlignment(direction) {
-        if (!coverDiv || coverDiv.style.display === 'none') return;
+        if (!coverDiv || coverDiv.style.display === 'none' || !['left', 'right'].includes(direction)) return;
 
-        if (direction === 'left') {
-            if (alignmentState === 'right') {
-                // Restore to full width
-                coverDiv.style.width = '100%';
-                coverDiv.style.left = '0';
-                alignmentState = 'full';
-            } else {
-                // Shrink to 66% and align right
-                coverDiv.style.width = '66%';
-                coverDiv.style.left = '34%';
-                alignmentState = 'right';
-            }
-        } else if (direction === 'right') {
-            if (alignmentState === 'left') {
-                // Restore to full width
-                coverDiv.style.width = '100%';
-                coverDiv.style.left = '0';
-                alignmentState = 'full';
-            } else {
-                // Shrink to 66% and align left
-                coverDiv.style.width = '66%';
-                coverDiv.style.left = '0';
-                alignmentState = 'left';
-            }
+        const targetState = direction === 'left' ? 'right' : 'left';
+        if (alignmentState === targetState) {
+            // Restore to full width
+            coverDiv.style.width = '100%';
+            coverDiv.style.left = '0';
+            alignmentState = 'full';
+        } else {
+            // Shrink to 66% with appropriate alignment
+            coverDiv.style.width = '66%';
+            coverDiv.style.left = direction === 'left' ? '34%' : '0';
+            alignmentState = targetState;
         }
         randomizeStart(); // Adjust bouncing position for new dimensions
     }
