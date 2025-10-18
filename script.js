@@ -315,34 +315,48 @@
             const status = competition.status;
             const isFinal = status.type.name === 'STATUS_FINAL';
             const isInProgress = status.type.state === 'in';
-            const homeName = home.team.abbreviation || home.team.shortDisplayName || home.team.displayName;
             const awayName = away.team.abbreviation || away.team.shortDisplayName || away.team.displayName;
-            const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: 40px; height: 40px;">` : '';
+            const homeName = home.team.abbreviation || home.team.shortDisplayName || home.team.displayName;
             const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: 40px; height: 40px;">` : '';
+            const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: 40px; height: 40px;">` : '';
 
-            let homeIndicator = '';
-            let awayIndicator = '';
-            let middleContent = '';
+            let leftIndicator = '';
+            let rightIndicator = '';
+            let emojiType = '';
             if (isFinal) {
-                if (home.winner) homeIndicator = '🏆';
-                if (away.winner) awayIndicator = '🏆';
-                middleContent = `${homeIndicator} VS ${awayIndicator}<br>Final`;
+                emojiType = '🏆';
+                if (away.winner) leftIndicator = emojiType;
+                if (home.winner) rightIndicator = emojiType;
             } else if (isInProgress) {
+                emojiType = '🏈';
                 if (competition.situation && competition.situation.possession) {
                     const possessionTeamId = competition.situation.possession.id;
-                    if (possessionTeamId === home.id) homeIndicator = '🏈';
-                    if (possessionTeamId === away.id) awayIndicator = '🏈';
+                    if (possessionTeamId === away.id) leftIndicator = emojiType;
+                    if (possessionTeamId === home.id) rightIndicator = emojiType;
                 }
-                middleContent = `${homeIndicator} VS ${awayIndicator}<br>${competition.situation.downDistanceText || ''}<br>${status.period} ${status.displayClock}`;
+            }
+
+            // Reserve space with invisible emoji if one side has an indicator
+            if (leftIndicator && !rightIndicator) {
+                rightIndicator = `<span style="visibility: hidden;">${emojiType}</span>`;
+            } else if (!leftIndicator && rightIndicator) {
+                leftIndicator = `<span style="visibility: hidden;">${emojiType}</span>`;
+            }
+
+            let middleContent = '';
+            if (isFinal) {
+                middleContent = `<span style="font-size: 20px;">${leftIndicator} @ ${rightIndicator}</span><br>Final`;
+            } else if (isInProgress) {
+                middleContent = `<span style="font-size: 20px;">${leftIndicator} @ ${rightIndicator}</span><br>${competition.situation.downDistanceText || ''}<br>Q${status.period} - ${status.displayClock}`;
             } else {
                 const gameDate = new Date(event.date);
                 if (!isNaN(gameDate.getTime())) {
                     const options = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true };
                     const localTime = gameDate.toLocaleTimeString('en-US', options);
                     const dateStr = gameDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
-                    middleContent = `VS<br>${dateStr}<br>${localTime}`;
+                    middleContent = `<span style="font-size: 20px;">@</span><br>${dateStr}<br>${localTime}`;
                 } else {
-                    middleContent = `VS<br>Scheduled`;
+                    middleContent = `<span style="font-size: 20px;">@</span><br>Scheduled`;
                 }
             }
 
@@ -359,13 +373,13 @@
 
             gameCard.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; flex: 1;">
-                    ${homeLogo}<br>${homeName}<br><span style="font-size: 24px; font-weight: bold;">${home.score}</span>
+                    ${awayLogo}<br>${awayName}<br><span style="font-size: 24px; font-weight: bold;">${away.score}</span>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; width: 120px; flex: 1;">
                     ${middleContent}
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; flex: 1;">
-                    ${awayLogo}<br>${awayName}<br><span style="font-size: 24px; font-weight: bold;">${away.score}</span>
+                    ${homeLogo}<br>${homeName}<br><span style="font-size: 24px; font-weight: bold;">${home.score}</span>
                 </div>
             `;
             gamesContainer.appendChild(gameCard);
