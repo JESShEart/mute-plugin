@@ -248,20 +248,23 @@
     function showTildeOverlay() {
         if (tildeOverlay) return;
 
+        const player = document.querySelector('#spectrum-player');
+        if (!player) return;
+
         tildeOverlay = document.createElement('div');
         tildeOverlay.id = 'tilde-overlay';
-        tildeOverlay.style.position = 'fixed';
+        tildeOverlay.style.position = 'absolute'; // Changed to absolute for player context
         tildeOverlay.style.top = '0';
         tildeOverlay.style.left = '0';
-        tildeOverlay.style.width = '100vw';
-        tildeOverlay.style.height = '100vh';
+        tildeOverlay.style.width = '100%';
+        tildeOverlay.style.height = '100%';
         tildeOverlay.style.zIndex = '1002';
         tildeOverlay.style.display = 'flex';
         tildeOverlay.style.justifyContent = 'center';
         tildeOverlay.style.alignItems = 'center';
         tildeOverlay.style.color = '#fff';
         tildeOverlay.style.fontFamily = 'Arial, sans-serif';
-        document.body.appendChild(tildeOverlay);
+        player.appendChild(tildeOverlay); // Append to player, not body
 
         tildeOverlay.innerHTML = `
             <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
@@ -298,7 +301,7 @@
         const gamesContainer = document.createElement('div');
         gamesContainer.style.display = 'flex';
         gamesContainer.style.flexWrap = 'wrap';
-        gamesContainer.style.justifyContent = 'flex-start'; // Left align incomplete rows
+        gamesContainer.style.justifyContent = 'center'; // Centered alignment
         gamesContainer.style.alignItems = 'center';
         gamesContainer.style.gap = '20px';
         gamesContainer.style.padding = '20px';
@@ -350,7 +353,7 @@
             gameCard.style.width = '250px'; // Consistent width
             gameCard.style.textAlign = 'center';
             gameCard.style.display = 'flex';
-            gameCard.style.flexDirection = 'row'; // Changed to horizontal
+            gameCard.style.flexDirection = 'row'; // Horizontal layout
             gameCard.style.justifyContent = 'space-around';
             gameCard.style.alignItems = 'center';
 
