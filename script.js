@@ -16,7 +16,7 @@
     let tildeOverlay = null;
     const API_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 
-    // Color palette for OLED burn-in protection (darker, richer colors on black)
+    // Color palette for OLED burn-in protection
     const colors = [
         '#1E90FF', // Deep Blue
         '#228B22', // Emerald Green
@@ -26,10 +26,10 @@
     ];
 
     // Bouncing animation parameters
-    let dx = 1; // Horizontal speed (pixels per frame, slowed down)
-    let dy = 1; // Vertical speed (pixels per frame, slowed down)
+    let dx = 1; // Horizontal speed
+    let dy = 1; // Vertical speed
 
-    // Function to get the video element using current selectors
+    // Function to get the video element
     function getVideoElement() {
         return document.querySelector('#spectrum-player video');
     }
@@ -59,13 +59,10 @@
         let newLeft = parseFloat(countdownSpan.style.left || 0) + dx;
         let newTop = parseFloat(countdownSpan.style.top || 0) + dy;
 
-        // Bounce on horizontal edges
         if (newLeft + spanRect.width > coverRect.width || newLeft < 0) {
             dx = -dx;
             newLeft = Math.max(0, Math.min(newLeft, coverRect.width - spanRect.width));
         }
-
-        // Bounce on vertical edges
         if (newTop + spanRect.height > coverRect.height || newTop < 0) {
             dy = -dy;
             newTop = Math.max(0, Math.min(newTop, coverRect.height - spanRect.height));
@@ -82,7 +79,7 @@
         if (!countdownSpan || !coverDiv) return;
 
         const coverRect = coverDiv.getBoundingClientRect();
-        const spanRect = countdownSpan.getBoundingClientRect(); // Get after text is set
+        const spanRect = countdownSpan.getBoundingClientRect();
 
         const maxX = coverRect.width - spanRect.width;
         const maxY = coverRect.height - spanRect.height;
@@ -93,7 +90,6 @@
         countdownSpan.style.left = `${randomX}px`;
         countdownSpan.style.top = `${randomY}px`;
 
-        // Randomize direction signs
         dx = Math.random() < 0.5 ? -1 : 1;
         dy = Math.random() < 0.5 ? -1 : 1;
     }
@@ -111,7 +107,6 @@
             coverDiv.style.zIndex = '1000';
             coverDiv.style.display = 'none';
             
-            // Add smooth color transition (no position transition needed for JS animation)
             const style = document.createElement('style');
             style.textContent = `
                 #commercial-cover-timer {
@@ -122,7 +117,7 @@
             
             countdownSpan = document.createElement('span');
             countdownSpan.id = 'commercial-cover-timer';
-            countdownSpan.style.color = colors[0]; // Start with first color
+            countdownSpan.style.color = colors[0];
             countdownSpan.style.fontSize = '10vw';
             countdownSpan.style.fontFamily = 'Arial, sans-serif';
             countdownSpan.style.position = 'absolute';
@@ -136,7 +131,7 @@
     // Initialize coverDiv early
     getCoverDiv();
 
-    // Function to append coverDiv to player if not already appended
+    // Function to append coverDiv to player
     function appendCoverToPlayer() {
         const player = document.querySelector('#spectrum-player');
         if (player && coverDiv && !coverDiv.parentElement) {
@@ -163,65 +158,41 @@
 
         const targetState = direction === 'left' ? 'right' : 'left';
         if (alignmentState === targetState) {
-            // Restore to full width
             coverDiv.style.width = '100%';
             coverDiv.style.left = '0';
             alignmentState = 'full';
         } else {
-            // Shrink to 66% with appropriate alignment
             coverDiv.style.width = '66%';
             coverDiv.style.left = direction === 'left' ? '34%' : '0';
             alignmentState = targetState;
         }
-        randomizeStart(); // Adjust bouncing position for new dimensions
+        randomizeStart();
     }
 
-    // Function to start commercial break handling
+    // Function to start commercial break
     function startCommercialBreak(durationInSeconds) {
         videoElement = getVideoElement();
         if (!videoElement) return;
 
-        // Clear any existing intervals and timeouts to prevent overlap
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        }
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-        }
-        if (colorCycleInterval) {
-            clearInterval(colorCycleInterval);
-            colorCycleInterval = null;
-        }
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
+        if (timeoutId) clearTimeout(timeoutId);
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (colorCycleInterval) clearInterval(colorCycleInterval);
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
-        // Mute
         videoElement.muted = true;
         isMuted = true;
 
-        // Ensure coverDiv is appended
         appendCoverToPlayer();
 
-        // Cover and start countdown
         const cover = getCoverDiv();
-        cover.style.display = 'block'; // Use block to allow absolute positioning of child
+        cover.style.display = 'block';
         secondsLeft = durationInSeconds;
         countdownSpan.textContent = formatTime(secondsLeft);
         
-        // Randomize starting position and direction
         randomizeStart();
-        
-        // Start bouncing animation
         animateBounce();
-        
-        // Start color cycling every 2 seconds
         colorCycleInterval = setInterval(cycleColor, 2000);
 
-        // Update countdown every second
         countdownInterval = setInterval(() => {
             secondsLeft--;
             if (secondsLeft >= 0) {
@@ -233,17 +204,14 @@
             }
         }, 1000);
 
-        // Set timeout to end the break
         timeoutId = setTimeout(endCommercialBreak, durationInSeconds * 1000);
     }
 
     // Function to extend timer by 1 minute or start a new 1-minute timer
     function handleOneMinuteKey() {
         if (!isMuted) {
-            // Start a new 1-minute timer
             startCommercialBreak(60);
         } else if (timeoutId) {
-            // Add 1 minute to existing timer
             clearTimeout(timeoutId);
             secondsLeft += 60;
             countdownSpan.textContent = formatTime(secondsLeft);
@@ -256,29 +224,14 @@
         videoElement = getVideoElement();
         if (!videoElement) return;
 
-        // Unmute
         videoElement.muted = false;
         isMuted = false;
 
-        // Stop all intervals and animations
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-        }
-        if (colorCycleInterval) {
-            clearInterval(colorCycleInterval);
-            colorCycleInterval = null;
-        }
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-        }
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (colorCycleInterval) clearInterval(colorCycleInterval);
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (timeoutId) clearTimeout(timeoutId);
 
-        // Uncover and reset
         const cover = getCoverDiv();
         cover.style.display = 'none';
         countdownSpan.textContent = '';
@@ -293,9 +246,8 @@
 
     // Function to show the tilde overlay
     function showTildeOverlay() {
-        if (tildeOverlay) return; // Prevent duplicates
+        if (tildeOverlay) return;
 
-        // Create overlay div
         tildeOverlay = document.createElement('div');
         tildeOverlay.id = 'tilde-overlay';
         tildeOverlay.style.position = 'fixed';
@@ -303,8 +255,7 @@
         tildeOverlay.style.left = '0';
         tildeOverlay.style.width = '100vw';
         tildeOverlay.style.height = '100vh';
-        tildeOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-        tildeOverlay.style.zIndex = '1002'; // Above coverDiv (1000) and countdownSpan (1001)
+        tildeOverlay.style.zIndex = '1002';
         tildeOverlay.style.display = 'flex';
         tildeOverlay.style.justifyContent = 'center';
         tildeOverlay.style.alignItems = 'center';
@@ -312,19 +263,16 @@
         tildeOverlay.style.fontFamily = 'Arial, sans-serif';
         document.body.appendChild(tildeOverlay);
 
-        // Show loading spinner
         tildeOverlay.innerHTML = `
             <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
         `;
-        // Add spinner keyframes
-        if (!document.getElementById('spinner-style')) {
+        if (!document.getElementById('spinner-style')) { // Fixed typo here
             const style = document.createElement('style');
             style.id = 'spinner-style';
             style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
             document.head.appendChild(style);
         }
 
-        // Fetch NFL scores
         fetch(API_URL)
             .then(response => response.json())
             .then(data => {
@@ -340,20 +288,17 @@
     function renderGames(events) {
         if (!tildeOverlay) return;
 
-        // Clear spinner
         tildeOverlay.innerHTML = '';
 
-        // No games message
         if (events.length === 0) {
             tildeOverlay.innerHTML = '<p style="font-size: 18px;">No NFL games this week.</p>';
             return;
         }
 
-        // Create flex container for games
         const gamesContainer = document.createElement('div');
         gamesContainer.style.display = 'flex';
         gamesContainer.style.flexWrap = 'wrap';
-        gamesContainer.style.justifyContent = 'center';
+        gamesContainer.style.justifyContent = 'flex-start'; // Left align incomplete rows
         gamesContainer.style.alignItems = 'center';
         gamesContainer.style.gap = '20px';
         gamesContainer.style.padding = '20px';
@@ -367,41 +312,58 @@
             const status = competition.status;
             const isFinal = status.type.name === 'STATUS_FINAL';
             const isInProgress = status.type.state === 'in';
-            const quarterTime = isFinal ? 'Final' : (isInProgress ? `Q${status.period} - ${status.displayClock}` : 'Scheduled');
-
-            // Determine winner/possession indicators
-            let homeIndicator = '';
-            let awayIndicator = '';
-            if (isFinal) {
-                if (home.winner) homeIndicator = '🏆';
-                if (away.winner) awayIndicator = '🏆';
-            } else if (isInProgress && competition.situation && competition.situation.possession) {
-                const possessionTeamId = competition.situation.possession.id;
-                if (possessionTeamId === home.id) homeIndicator = '⚽';
-                if (possessionTeamId === away.id) awayIndicator = '⚽';
-            }
-
-            // Use shortDisplayName for brevity
-            const homeName = home.team.shortDisplayName || home.team.displayName;
-            const awayName = away.team.shortDisplayName || away.team.displayName;
+            const homeName = home.team.abbreviation || home.team.shortDisplayName || home.team.displayName;
+            const awayName = away.team.abbreviation || away.team.shortDisplayName || away.team.displayName;
             const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: 40px; height: 40px;">` : '';
             const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: 40px; height: 40px;">` : '';
 
-            // Game card
+            let homeIndicator = '';
+            let awayIndicator = '';
+            let middleContent = '';
+            if (isFinal) {
+                if (home.winner) homeIndicator = '🏆';
+                if (away.winner) awayIndicator = '🏆';
+                middleContent = `${homeIndicator} VS ${awayIndicator}<br>Final`;
+            } else if (isInProgress) {
+                if (competition.situation && competition.situation.possession) {
+                    const possessionTeamId = competition.situation.possession.id;
+                    if (possessionTeamId === home.id) homeIndicator = '🏈';
+                    if (possessionTeamId === away.id) awayIndicator = '🏈';
+                }
+                middleContent = `${homeIndicator} VS ${awayIndicator}<br>${competition.situation.downDistanceText || ''}<br>${status.period} ${status.displayClock}`;
+            } else {
+                const gameDate = new Date(event.date);
+                if (!isNaN(gameDate.getTime())) {
+                    const options = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true };
+                    const localTime = gameDate.toLocaleTimeString('en-US', options);
+                    const dateStr = gameDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+                    middleContent = `VS<br>${dateStr}<br>${localTime}`;
+                } else {
+                    middleContent = `VS<br>Scheduled`;
+                }
+            }
+
             const gameCard = document.createElement('div');
-            gameCard.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            gameCard.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
             gameCard.style.borderRadius = '8px';
             gameCard.style.padding = '10px';
+            gameCard.style.width = '250px'; // Consistent width
             gameCard.style.textAlign = 'center';
-            gameCard.style.minWidth = '200px';
-            gameCard.style.flex = '1 1 auto';
+            gameCard.style.display = 'flex';
+            gameCard.style.flexDirection = 'column';
+            gameCard.style.justifyContent = 'center';
+            gameCard.style.alignItems = 'center';
+
             gameCard.innerHTML = `
-                <div style="display: flex; justify-content: space-around; align-items: center;">
-                    <div>${homeLogo}<br>${homeName} ${home.score} ${homeIndicator}</div>
-                    <div>vs</div>
-                    <div>${awayLogo}<br>${awayName} ${away.score} ${awayIndicator}</div>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;">
+                    ${homeLogo}<br>${homeName}<br><span style="font-size: 24px; font-weight: bold;">${home.score}</span>
                 </div>
-                <p style="margin-top: 5px; font-size: 14px;">${quarterTime}</p>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; width: 120px;">
+                    ${middleContent}
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;">
+                    ${awayLogo}<br>${awayName}<br><span style="font-size: 24px; font-weight: bold;">${away.score}</span>
+                </div>
             `;
             gamesContainer.appendChild(gameCard);
         });
@@ -417,19 +379,19 @@
         }
     }
 
-    // Hotkey listener for muting/unmuting, extending timer, toggling alignment, and NFL scores overlay
+    // Hotkey listener
     document.addEventListener('keydown', function(event) {
-        if (event.key === '3') { // 30 seconds
+        if (event.key === '3') {
             isMuted ? endCommercialBreak() : startCommercialBreak(30);
-        } else if (event.key === '2') { // 2 minutes
+        } else if (event.key === '2') {
             isMuted ? endCommercialBreak() : startCommercialBreak(120);
-        } else if (event.key === '1') { // 1 minute or add 1 minute
+        } else if (event.key === '1') {
             handleOneMinuteKey();
-        } else if (event.key === 'ArrowLeft') { // Left arrow to toggle right-aligned 66% width
+        } else if (event.key === 'ArrowLeft') {
             toggleAlignment('left');
-        } else if (event.key === 'ArrowRight') { // Right arrow to toggle left-aligned 66% width
+        } else if (event.key === 'ArrowRight') {
             toggleAlignment('right');
-        } else if (event.key === '`') { // Tilde key for NFL scores overlay
+        } else if (event.key === '`') {
             if (tildeOverlay) {
                 hideTildeOverlay();
             } else {
@@ -438,7 +400,7 @@
         }
     });
 
-    // Observe for player changes (in case player is dynamically loaded)
+    // Observe for player changes
     const observer = new MutationObserver(() => {
         if (getVideoElement()) {
             appendCoverToPlayer();
