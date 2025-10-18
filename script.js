@@ -266,7 +266,7 @@
         tildeOverlay.innerHTML = `
             <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
         `;
-        if (!document.getElementById('spinner-style')) { // Fixed typo here
+        if (!document.getElementById('spinner-style')) {
             const style = document.createElement('style');
             style.id = 'spinner-style';
             style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
@@ -350,18 +350,18 @@
             gameCard.style.width = '250px'; // Consistent width
             gameCard.style.textAlign = 'center';
             gameCard.style.display = 'flex';
-            gameCard.style.flexDirection = 'column';
-            gameCard.style.justifyContent = 'center';
+            gameCard.style.flexDirection = 'row'; // Changed to horizontal
+            gameCard.style.justifyContent = 'space-around';
             gameCard.style.alignItems = 'center';
 
             gameCard.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; flex: 1;">
                     ${homeLogo}<br>${homeName}<br><span style="font-size: 24px; font-weight: bold;">${home.score}</span>
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; width: 120px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; width: 120px; flex: 1;">
                     ${middleContent}
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; flex: 1;">
                     ${awayLogo}<br>${awayName}<br><span style="font-size: 24px; font-weight: bold;">${away.score}</span>
                 </div>
             `;
