@@ -13,6 +13,8 @@
     let animationFrameId = null;
     let currentColorIndex = 0;
     let alignmentState = 'full'; // 'full', 'left', or 'right'
+    let tildeOverlay = null;
+    const API_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
 
     // Color palette for OLED burn-in protection (darker, richer colors on black)
     const colors = [
@@ -289,7 +291,133 @@
         coverDiv.style.left = '0';
     }
 
-    // Hotkey listener for muting/unmuting, extending timer, and toggling alignment
+    // Function to show the tilde overlay
+    function showTildeOverlay() {
+        if (tildeOverlay) return; // Prevent duplicates
+
+        // Create overlay div
+        tildeOverlay = document.createElement('div');
+        tildeOverlay.id = 'tilde-overlay';
+        tildeOverlay.style.position = 'fixed';
+        tildeOverlay.style.top = '0';
+        tildeOverlay.style.left = '0';
+        tildeOverlay.style.width = '100vw';
+        tildeOverlay.style.height = '100vh';
+        tildeOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+        tildeOverlay.style.zIndex = '1002'; // Above coverDiv (1000) and countdownSpan (1001)
+        tildeOverlay.style.display = 'flex';
+        tildeOverlay.style.justifyContent = 'center';
+        tildeOverlay.style.alignItems = 'center';
+        tildeOverlay.style.color = '#fff';
+        tildeOverlay.style.fontFamily = 'Arial, sans-serif';
+        document.body.appendChild(tildeOverlay);
+
+        // Show loading spinner
+        tildeOverlay.innerHTML = `
+            <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        `;
+        // Add spinner keyframes
+        if (!document.getElementById('spinner-style')) {
+            const style = document.createElement('style');
+            style.id = 'spinner-style';
+            style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+            document.head.appendChild(style);
+        }
+
+        // Fetch NFL scores
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                renderGames(data.events || []);
+            })
+            .catch(error => {
+                console.error('Error fetching NFL scores:', error);
+                tildeOverlay.innerHTML = '<p style="font-size: 18px;">Error loading scores. Try again later.</p>';
+            });
+    }
+
+    // Function to render games in flexbox grid
+    function renderGames(events) {
+        if (!tildeOverlay) return;
+
+        // Clear spinner
+        tildeOverlay.innerHTML = '';
+
+        // No games message
+        if (events.length === 0) {
+            tildeOverlay.innerHTML = '<p style="font-size: 18px;">No NFL games this week.</p>';
+            return;
+        }
+
+        // Create flex container for games
+        const gamesContainer = document.createElement('div');
+        gamesContainer.style.display = 'flex';
+        gamesContainer.style.flexWrap = 'wrap';
+        gamesContainer.style.justifyContent = 'center';
+        gamesContainer.style.alignItems = 'center';
+        gamesContainer.style.gap = '20px';
+        gamesContainer.style.padding = '20px';
+        gamesContainer.style.maxHeight = '100vh';
+        gamesContainer.style.overflowY = 'auto';
+
+        events.forEach(event => {
+            const competition = event.competitions[0];
+            const home = competition.competitors.find(c => c.homeAway === 'home');
+            const away = competition.competitors.find(c => c.homeAway === 'away');
+            const status = competition.status;
+            const isFinal = status.type.name === 'STATUS_FINAL';
+            const isInProgress = status.type.state === 'in';
+            const quarterTime = isFinal ? 'Final' : (isInProgress ? `Q${status.period} - ${status.displayClock}` : 'Scheduled');
+
+            // Determine winner/possession indicators
+            let homeIndicator = '';
+            let awayIndicator = '';
+            if (isFinal) {
+                if (home.winner) homeIndicator = '🏆';
+                if (away.winner) awayIndicator = '🏆';
+            } else if (isInProgress && competition.situation && competition.situation.possession) {
+                const possessionTeamId = competition.situation.possession.id;
+                if (possessionTeamId === home.id) homeIndicator = '⚽';
+                if (possessionTeamId === away.id) awayIndicator = '⚽';
+            }
+
+            // Use shortDisplayName for brevity
+            const homeName = home.team.shortDisplayName || home.team.displayName;
+            const awayName = away.team.shortDisplayName || away.team.displayName;
+            const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: 40px; height: 40px;">` : '';
+            const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: 40px; height: 40px;">` : '';
+
+            // Game card
+            const gameCard = document.createElement('div');
+            gameCard.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            gameCard.style.borderRadius = '8px';
+            gameCard.style.padding = '10px';
+            gameCard.style.textAlign = 'center';
+            gameCard.style.minWidth = '200px';
+            gameCard.style.flex = '1 1 auto';
+            gameCard.innerHTML = `
+                <div style="display: flex; justify-content: space-around; align-items: center;">
+                    <div>${homeLogo}<br>${homeName} ${home.score} ${homeIndicator}</div>
+                    <div>vs</div>
+                    <div>${awayLogo}<br>${awayName} ${away.score} ${awayIndicator}</div>
+                </div>
+                <p style="margin-top: 5px; font-size: 14px;">${quarterTime}</p>
+            `;
+            gamesContainer.appendChild(gameCard);
+        });
+
+        tildeOverlay.appendChild(gamesContainer);
+    }
+
+    // Function to hide/remove tilde overlay
+    function hideTildeOverlay() {
+        if (tildeOverlay) {
+            tildeOverlay.remove();
+            tildeOverlay = null;
+        }
+    }
+
+    // Hotkey listener for muting/unmuting, extending timer, toggling alignment, and NFL scores overlay
     document.addEventListener('keydown', function(event) {
         if (event.key === '3') { // 30 seconds
             isMuted ? endCommercialBreak() : startCommercialBreak(30);
@@ -301,6 +429,12 @@
             toggleAlignment('left');
         } else if (event.key === 'ArrowRight') { // Right arrow to toggle left-aligned 66% width
             toggleAlignment('right');
+        } else if (event.key === '`') { // Tilde key for NFL scores overlay
+            if (tildeOverlay) {
+                hideTildeOverlay();
+            } else {
+                showTildeOverlay();
+            }
         }
     });
 
