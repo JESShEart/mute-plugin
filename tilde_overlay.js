@@ -47,7 +47,7 @@
             <div class="spinner"></div>
         `;
 
-        fetch(API_URL)
+        fetch(`${API_URL}?t=${Date.now()}`) // Cache-buster
             .then(response => response.json())
             .then(data => {
                 renderGames(data.events || []);
@@ -116,11 +116,14 @@
                 }
             } else if (isInProgress) {
                 emojiType = '🏈';
-                if (competition.situation && competition.situation.possession) {
-                    const possessionTeamId = competition.situation.possession.id;
+                if (competition.situation && competition.situation.hasOwnProperty('possession')) {
+                    const possessionTeamId = competition.situation.possession;
                     if (possessionTeamId === away.id) leftIndicator = emojiType;
                     if (possessionTeamId === home.id) rightIndicator = emojiType;
+                } else {
+                    console.log('No possession data for game:', event.name);
                 }
+
             }
 
             if (leftIndicator && !rightIndicator) {
@@ -129,25 +132,27 @@
                 leftIndicator = `<span class="hidden-indicator">${emojiType}</span>`;
             }
 
+
             let middleContent = '';
             if (isFinal) {
-                middleContent = `<br><span class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</span><br>Final`;
+                middleContent = `<div class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</div><div>Final</div>`;
             } else if (isInProgress) {
                 const quarterStr = getQuarterDisplay(status.period, status.displayClock);
                 const quarterLine = (quarterStr === "Halftime") ? "Halftime" : `${quarterStr} ${status.displayClock}`;
                 const downParts = (competition.situation.downDistanceText || '').split(' at ');
                 const downText = downParts[0] || '';
                 const yardageText = downParts[1] || '';
-                middleContent = `<br><div><span class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</span></div><div>${quarterLine}</div><div>${downText}</div><div>${yardageText}</div>`;
+                middleContent = `<div><span class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</span></div><div>${quarterLine}</div><div>${downText}</div>${yardageText ? `<div>on ${yardageText}</div>` : ''}`;
             } else {
                 const gameDate = new Date(event.date);
                 if (!isNaN(gameDate.getTime())) {
                     const options = { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true };
                     const localTime = gameDate.toLocaleTimeString('en-US', options).replace(/^0/, '');
                     const dateStr = gameDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
-                    middleContent = `<br><span class="middle-content">@</span><br>${dateStr}<br>${localTime}`;
+                    const dayName = gameDate.toLocaleDateString('en-US', { weekday: 'long' });
+                    middleContent = `<div class="middle-content">@</div><div>${dayName}</div><div>${dateStr}</div><div>${localTime}</div>`;
                 } else {
-                    middleContent = `<br><span class="middle-content">@</span><br>Scheduled`;
+                    middleContent = `<div class="middle-content">@</div><div>Scheduled</div>`;
                 }
             }
 
@@ -158,14 +163,12 @@
                 const awayScoreNum = parseInt(away.score) || 0;
                 const homeScoreNum = parseInt(home.score) || 0;
                 if (isFinal) {
-                    // Filled bullet for final winner, bold score
                     if (away.winner) {
                         awayScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span class="score winner">${away.score}</span></div>`;
                     } else if (home.winner) {
                         homeScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span class="score winner">${home.score}</span></div>`;
                     }
                 } else if (isInProgress) {
-                    // Unfilled bullet for current leader, no bold
                     if (awayScoreNum > homeScoreNum) {
                         awayScoreDisplay = `<div class="score-container"><span class="bullet">○</span><span class="score">${away.score}</span></div>`;
                     } else if (homeScoreNum > awayScoreNum) {

@@ -87,6 +87,7 @@
     width: 240px;
     flex: 1;
     font-size: 32px;
+    padding-top: 20px;
 }
 
 .middle-content {
