@@ -1,6 +1,6 @@
 {
   "name": "Spectrum Mute Timer",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "manifest_version": 3,
   "description": "Mutes and covers the Spectrum TV video player during commercial breaks with a bouncing countdown timer. Use hotkeys: '3' for 30 seconds, '2' for 2 minutes, '1' to start or add 1 minute. Hides cursor during inactivity.",
   "icons": {
@@ -16,7 +16,8 @@
   "content_scripts": [
     {
       "matches": ["https://watch.spectrum.net/*"],
-      "js": ["script.js"],
+      "js": ["mute_overlay.js", "tilde_overlay.js", "script.js"],
+      "css": ["tilde_overlay.css"],
       "run_at": "document_idle"
     }
   ]
