@@ -117,6 +117,18 @@
                 #commercial-cover-timer {
                     transition: color 0.5s ease-in-out;
                 }
+                .score-container {
+                    position: relative;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .bullet {
+                    position: absolute;
+                    left: -10px; /* Maintains adjusted spacing */
+                    font-size: 48px;
+                    font-weight: bold;
+                }
             `;
             document.head.appendChild(style);
             
@@ -328,6 +340,7 @@
             const status = competition.status;
             const isFinal = status.type.name === 'STATUS_FINAL';
             const isInProgress = status.type.state === 'in';
+            const isNotStarted = status.type.state === 'pre';
             const awayName = away.team.abbreviation || away.team.shortDisplayName || away.team.displayName;
             const homeName = home.team.abbreviation || home.team.shortDisplayName || home.team.displayName;
             const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: 80px; height: 80px;">` : '';
@@ -338,8 +351,14 @@
             let emojiType = '';
             if (isFinal) {
                 emojiType = '🏆';
-                if (away.winner) leftIndicator = emojiType;
-                if (home.winner) rightIndicator = emojiType;
+                if (away.winner) {
+                    leftIndicator = emojiType;
+                } else if (home.winner) {
+                    rightIndicator = emojiType;
+                } else {
+                    leftIndicator = emojiType;
+                    rightIndicator = emojiType;
+                }
             } else if (isInProgress) {
                 emojiType = '🏈';
                 if (competition.situation && competition.situation.possession) {
@@ -372,6 +391,29 @@
                 }
             }
 
+            // Set score display: invisible for games not started, with bullet prefix for winner/leader
+            let awayScoreDisplay = isNotStarted ? `<span style="visibility: hidden;">0</span>` : away.score;
+            let homeScoreDisplay = isNotStarted ? `<span style="visibility: hidden;">0</span>` : home.score;
+            if (isFinal || isInProgress) {
+                const awayScoreNum = parseInt(away.score) || 0;
+                const homeScoreNum = parseInt(home.score) || 0;
+                if (away.winner) {
+                    awayScoreDisplay = `<div class="score-container"><span class="bullet">\u2022</span><span style="font-size: 48px; font-weight: bold;">${away.score}</span></div>`;
+                } else if (home.winner) {
+                    homeScoreDisplay = `<div class="score-container"><span class="bullet">\u2022</span><span style="font-size: 48px; font-weight: bold;">${home.score}</span></div>`;
+                } else if (isInProgress && awayScoreNum > homeScoreNum) {
+                    awayScoreDisplay = `<div class="score-container"><span class="bullet">\u25E6</span><span style="font-size: 48px; font-weight: bold;">${away.score}</span></div>`;
+                } else if (isInProgress && homeScoreNum > awayScoreNum) {
+                    homeScoreDisplay = `<div class="score-container"><span class="bullet">\u25E6</span><span style="font-size: 48px; font-weight: bold;">${home.score}</span></div>`;
+                } else {
+                    awayScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${away.score}</span></div>`;
+                    homeScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${home.score}</span></div>`;
+                }
+            } else {
+                awayScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${awayScoreDisplay}</span></div>`;
+                homeScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${homeScoreDisplay}</span></div>`;
+            }
+
             const gameCard = document.createElement('div');
             gameCard.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
             gameCard.style.borderRadius = '16px';
@@ -386,13 +428,13 @@
 
             gameCard.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; flex: 1; font-size: 32px;">
-                    ${awayLogo}<br>${awayName}<br><span style="font-size: 48px; font-weight: bold;">${away.score}</span>
+                    ${awayLogo}<br>${awayName}<br>${awayScoreDisplay}
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; width: 240px; flex: 1; font-size: 32px;">
                     ${middleContent}
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; flex: 1; font-size: 32px;">
-                    ${homeLogo}<br>${homeName}<br><span style="font-size: 48px; font-weight: bold;">${home.score}</span>
+                    ${homeLogo}<br>${homeName}<br>${homeScoreDisplay}
                 </div>
             `;
             gamesContainer.appendChild(gameCard);
@@ -469,7 +511,7 @@
     function hideHandler() {
         if (hidden) return;
         hidden = true;
-        document.head.append(styleEl);
+        document.head.appendChild(styleEl);
     }
 
     function showHandler() {
