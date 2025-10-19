@@ -373,7 +373,7 @@
             }
 
             const gameCard = document.createElement('div');
-            gameCard.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            gameCard.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
             gameCard.style.borderRadius = '16px';
             gameCard.style.padding = '20px';
             gameCard.style.width = '500px';
