@@ -134,10 +134,11 @@
                 middleContent = `<br><span class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</span><br>Final`;
             } else if (isInProgress) {
                 const quarterStr = getQuarterDisplay(status.period, status.displayClock);
+                const quarterLine = (quarterStr === "Halftime") ? "Halftime" : `${quarterStr} ${status.displayClock}`;
                 const downParts = (competition.situation.downDistanceText || '').split(' at ');
                 const downText = downParts[0] || '';
                 const yardageText = downParts[1] || '';
-                middleContent = `<br><div><span class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</span></div><div>${quarterStr}</div><div>${downText}</div><div>${yardageText}</div>`;
+                middleContent = `<br><div><span class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</span></div><div>${quarterLine}</div><div>${downText}</div><div>${yardageText}</div>`;
             } else {
                 const gameDate = new Date(event.date);
                 if (!isNaN(gameDate.getTime())) {
@@ -150,16 +151,26 @@
                 }
             }
 
-            // Set score display: inline for non-winners, with bullet for winners
+            // Set score display: inline for non-winners, with bullet for winners/leaders
             let awayScoreDisplay = isNotStarted ? '' : `<span class="score">${away.score}</span>`;
             let homeScoreDisplay = isNotStarted ? '' : `<span class="score">${home.score}</span>`;
             if (isFinal || isInProgress) {
                 const awayScoreNum = parseInt(away.score) || 0;
                 const homeScoreNum = parseInt(home.score) || 0;
-                if (away.winner) {
-                    awayScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span class="score winner">${away.score}</span></div>`;
-                } else if (home.winner) {
-                    homeScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span class="score winner">${home.score}</span></div>`;
+                if (isFinal) {
+                    // Filled bullet for final winner, bold score
+                    if (away.winner) {
+                        awayScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span class="score winner">${away.score}</span></div>`;
+                    } else if (home.winner) {
+                        homeScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span class="score winner">${home.score}</span></div>`;
+                    }
+                } else if (isInProgress) {
+                    // Unfilled bullet for current leader, no bold
+                    if (awayScoreNum > homeScoreNum) {
+                        awayScoreDisplay = `<div class="score-container"><span class="bullet">○</span><span class="score">${away.score}</span></div>`;
+                    } else if (homeScoreNum > awayScoreNum) {
+                        homeScoreDisplay = `<div class="score-container"><span class="bullet">○</span><span class="score">${home.score}</span></div>`;
+                    }
                 }
             }
 

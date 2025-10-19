@@ -107,9 +107,10 @@
 
 .bullet {
     position: absolute;
-    left: -19px;
+    left: -25px;
     font-size: 40px;
     font-weight: bold;
+    line-height: 1;
 }
 
 .winner {
