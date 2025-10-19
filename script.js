@@ -120,13 +120,14 @@
                 .score-container {
                     position: relative;
                     display: flex;
-                    justify-content: center;
                     align-items: center;
+                    justify-content: center;
+                    padding: 2px 0; /* Slight padding to ensure bullet fits */
                 }
                 .bullet {
                     position: absolute;
                     left: -19px;
-                    font-size: 48px;
+                    font-size: 40px;
                     font-weight: bold;
                 }
             `;
@@ -343,8 +344,23 @@
             const isNotStarted = status.type.state === 'pre';
             const awayName = away.team.abbreviation || away.team.shortDisplayName || away.team.displayName;
             const homeName = home.team.abbreviation || home.team.shortDisplayName || home.team.displayName;
-            const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: 80px; height: 80px;">` : '';
-            const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: 80px; height: 80px;">` : '';
+            const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: 80px; height: 80px; vertical-align: top;">` : '';
+            const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: 80px; height: 80px; vertical-align: top;">` : '';
+
+            // Extract overall records
+            const getOverallRecord = (competitor) => {
+                const overallRecord = competitor.records.find(r => r.name === 'overall');
+                if (overallRecord && overallRecord.summary) {
+                    const parts = overallRecord.summary.split('-');
+                    const w = parts[0];
+                    const l = parts[1];
+                    const t = parts[2] || '0';
+                    return t > 0 ? `${w}-${l}-${t}` : `${w}-${l}`;
+                }
+                return '';
+            };
+            const awayRecord = getOverallRecord(away);
+            const homeRecord = getOverallRecord(home);
 
             let leftIndicator = '';
             let rightIndicator = '';
@@ -376,42 +392,32 @@
 
             let middleContent = '';
             if (isFinal) {
-                middleContent = `<span style="font-size: 40px;">${leftIndicator} @ ${rightIndicator}</span><br>Final`;
+                middleContent = `<br><span style="font-size: 40px;"><span style="visibility: hidden;">${leftIndicator}</span> @ ${rightIndicator}</span><br>Final`;
             } else if (isInProgress) {
-                middleContent = `<span style="font-size: 40px;">${leftIndicator} @ ${rightIndicator}</span><br>${competition.situation.downDistanceText || ''}<br>Q${status.period} - ${status.displayClock}`;
+                middleContent = `<br><span style="font-size: 40px;"><span style="visibility: hidden;">${leftIndicator}</span> @ ${rightIndicator}</span><br>${competition.situation.downDistanceText || ''}<br>Q${status.period} - ${status.displayClock}`;
             } else {
                 const gameDate = new Date(event.date);
                 if (!isNaN(gameDate.getTime())) {
                     const options = { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true };
                     const localTime = gameDate.toLocaleTimeString('en-US', options).replace(/^0/, '');
                     const dateStr = gameDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
-                    middleContent = `<span style="font-size: 40px;">@</span><br>${dateStr}<br>${localTime}`;
+                    middleContent = `<br><span style="font-size: 40px;">@</span><br>${dateStr}<br>${localTime}`;
                 } else {
-                    middleContent = `<span style="font-size: 40px;">@</span><br>Scheduled`;
+                    middleContent = `<br><span style="font-size: 40px;">@</span><br>Scheduled`;
                 }
             }
 
-            // Set score display: invisible for games not started, with bullet prefix for winner/leader
-            let awayScoreDisplay = isNotStarted ? `<span style="visibility: hidden;">0</span>` : away.score;
-            let homeScoreDisplay = isNotStarted ? `<span style="visibility: hidden;">0</span>` : home.score;
+            // Set score display: inline for non-winners, with bullet for winners
+            let awayScoreDisplay = isNotStarted ? '' : away.score;
+            let homeScoreDisplay = isNotStarted ? '' : home.score;
             if (isFinal || isInProgress) {
                 const awayScoreNum = parseInt(away.score) || 0;
                 const homeScoreNum = parseInt(home.score) || 0;
                 if (away.winner) {
-                    awayScoreDisplay = `<div class="score-container"><span class="bullet">\u2022</span><span style="font-size: 48px; font-weight: bold;">${away.score}</span></div>`;
+                    awayScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span style="font-size: 32px; font-weight: bold;">${away.score}</span></div>`;
                 } else if (home.winner) {
-                    homeScoreDisplay = `<div class="score-container"><span class="bullet">\u2022</span><span style="font-size: 48px; font-weight: bold;">${home.score}</span></div>`;
-                } else if (isInProgress && awayScoreNum > homeScoreNum) {
-                    awayScoreDisplay = `<div class="score-container"><span class="bullet">\u25E6</span><span style="font-size: 48px; font-weight: bold;">${away.score}</span></div>`;
-                } else if (isInProgress && homeScoreNum > awayScoreNum) {
-                    homeScoreDisplay = `<div class="score-container"><span class="bullet">\u25E6</span><span style="font-size: 48px; font-weight: bold;">${home.score}</span></div>`;
-                } else {
-                    awayScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${away.score}</span></div>`;
-                    homeScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${home.score}</span></div>`;
+                    homeScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span style="font-size: 32px; font-weight: bold;">${home.score}</span></div>`;
                 }
-            } else {
-                awayScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${awayScoreDisplay}</span></div>`;
-                homeScoreDisplay = `<div class="score-container"><span style="font-size: 48px; font-weight: bold;">${homeScoreDisplay}</span></div>`;
             }
 
             const gameCard = document.createElement('div');
@@ -423,18 +429,18 @@
             gameCard.style.display = 'flex';
             gameCard.style.flexDirection = 'row';
             gameCard.style.justifyContent = 'space-around';
-            gameCard.style.alignItems = 'center';
+            gameCard.style.alignItems = 'flex-start';
             gameCard.style.minHeight = '200px';
 
             gameCard.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; flex: 1; font-size: 32px;">
-                    ${awayLogo}<br>${awayName}<br>${awayScoreDisplay}
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex: 1; font-size: 32px;">
+                    ${awayLogo}<span style="margin-bottom: 5px;">${awayName}</span><span style="font-size: 20px;">${awayRecord}</span>${awayScoreDisplay}
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; width: 240px; flex: 1; font-size: 32px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 200px; width: 240px; flex: 1; font-size: 32px;">
                     ${middleContent}
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; flex: 1; font-size: 32px;">
-                    ${homeLogo}<br>${homeName}<br>${homeScoreDisplay}
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex: 1; font-size: 32px;">
+                    ${homeLogo}<span style="margin-bottom: 5px;">${homeName}</span><span style="font-size: 20px;">${homeRecord}</span>${homeScoreDisplay}
                 </div>
             `;
             gamesContainer.appendChild(gameCard);
