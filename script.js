@@ -269,7 +269,7 @@
         tildeOverlay.style.alignItems = 'center';
         tildeOverlay.style.color = '#fff';
         tildeOverlay.style.fontFamily = 'Arial, sans-serif';
-        tildeOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+        tildeOverlay.style.backgroundColor = 'transparent';
         player.appendChild(tildeOverlay);
 
         // Add click event to close overlay and stop propagation
@@ -279,7 +279,7 @@
         });
 
         tildeOverlay.innerHTML = `
-            <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+            <div class="spinner" style="border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 80px; height: 80px; animation: spin 1s linear infinite;"></div>
         `;
         if (!document.getElementById('spinner-style')) {
             const style = document.createElement('style');
@@ -295,7 +295,7 @@
             })
             .catch(error => {
                 console.error('Error fetching NFL scores:', error);
-                tildeOverlay.innerHTML = '<p style="font-size: min(3vmin, 18px);">Error loading scores. Try again later.</p>';
+                tildeOverlay.innerHTML = '<p style="font-size: 36px;">Error loading scores. Try again later.</p>';
             });
     }
 
@@ -306,7 +306,7 @@
         tildeOverlay.innerHTML = '';
 
         if (events.length === 0) {
-            tildeOverlay.innerHTML = '<p style="font-size: min(3vmin, 18px);">No NFL games this week.</p>';
+            tildeOverlay.innerHTML = '<p style="font-size: 36px;">No NFL games this week.</p>';
             return;
         }
 
@@ -315,8 +315,8 @@
         gamesContainer.style.flexWrap = 'wrap';
         gamesContainer.style.justifyContent = 'center';
         gamesContainer.style.alignItems = 'center';
-        gamesContainer.style.gap = 'min(2vmin, 20px)';
-        gamesContainer.style.padding = 'min(2vmin, 20px)';
+        gamesContainer.style.gap = '40px';
+        gamesContainer.style.padding = '40px';
         gamesContainer.style.maxHeight = '100vh';
         gamesContainer.style.overflowY = 'auto';
         gamesContainer.style.boxSizing = 'border-box';
@@ -330,8 +330,8 @@
             const isInProgress = status.type.state === 'in';
             const awayName = away.team.abbreviation || away.team.shortDisplayName || away.team.displayName;
             const homeName = home.team.abbreviation || home.team.shortDisplayName || home.team.displayName;
-            const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: min(5vmin, 40px); height: min(5vmin, 40px);">` : '';
-            const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: min(5vmin, 40px); height: min(5vmin, 40px);">` : '';
+            const awayLogo = away.team.logo ? `<img src="${away.team.logo}" alt="${awayName}" style="width: 80px; height: 80px;">` : '';
+            const homeLogo = home.team.logo ? `<img src="${home.team.logo}" alt="${homeName}" style="width: 80px; height: 80px;">` : '';
 
             let leftIndicator = '';
             let rightIndicator = '';
@@ -357,42 +357,42 @@
 
             let middleContent = '';
             if (isFinal) {
-                middleContent = `<span style="font-size: min(3vmin, 20px);">${leftIndicator} @ ${rightIndicator}</span><br>Final`;
+                middleContent = `<span style="font-size: 40px;">${leftIndicator} @ ${rightIndicator}</span><br>Final`;
             } else if (isInProgress) {
-                middleContent = `<span style="font-size: min(3vmin, 20px);">${leftIndicator} @ ${rightIndicator}</span><br>${competition.situation.downDistanceText || ''}<br>Q${status.period} - ${status.displayClock}`;
+                middleContent = `<span style="font-size: 40px;">${leftIndicator} @ ${rightIndicator}</span><br>${competition.situation.downDistanceText || ''}<br>Q${status.period} - ${status.displayClock}`;
             } else {
                 const gameDate = new Date(event.date);
                 if (!isNaN(gameDate.getTime())) {
                     const options = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true };
                     const localTime = gameDate.toLocaleTimeString('en-US', options);
                     const dateStr = gameDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
-                    middleContent = `<span style="font-size: min(3vmin, 20px);">@</span><br>${dateStr}<br>${localTime}`;
+                    middleContent = `<span style="font-size: 40px;">@</span><br>${dateStr}<br>${localTime}`;
                 } else {
-                    middleContent = `<span style="font-size: min(3vmin, 20px);">@</span><br>Scheduled`;
+                    middleContent = `<span style="font-size: 40px;">@</span><br>Scheduled`;
                 }
             }
 
             const gameCard = document.createElement('div');
-            gameCard.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-            gameCard.style.borderRadius = 'min(1vmin, 8px)';
-            gameCard.style.padding = 'min(1.5vmin, 10px)';
-            gameCard.style.width = 'min(30vw, 300px)';
+            gameCard.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            gameCard.style.borderRadius = '16px';
+            gameCard.style.padding = '20px';
+            gameCard.style.width = '500px';
             gameCard.style.textAlign = 'center';
             gameCard.style.display = 'flex';
             gameCard.style.flexDirection = 'row';
             gameCard.style.justifyContent = 'space-around';
             gameCard.style.alignItems = 'center';
-            gameCard.style.minHeight = 'min(15vmin, 120px)';
+            gameCard.style.minHeight = '200px';
 
             gameCard.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: min(15vmin, 100px); flex: 1; font-size: min(2.5vmin, 16px);">
-                    ${awayLogo}<br>${awayName}<br><span style="font-size: min(4vmin, 24px); font-weight: bold;">${away.score}</span>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; flex: 1; font-size: 32px;">
+                    ${awayLogo}<br>${awayName}<br><span style="font-size: 48px; font-weight: bold;">${away.score}</span>
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: min(15vmin, 100px); width: min(15vmin, 120px); flex: 1; font-size: min(2.5vmin, 16px);">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; width: 240px; flex: 1; font-size: 32px;">
                     ${middleContent}
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: min(15vmin, 100px); flex: 1; font-size: min(2.5vmin, 16px);">
-                    ${homeLogo}<br>${homeName}<br><span style="font-size: min(4vmin, 24px); font-weight: bold;">${home.score}</span>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; flex: 1; font-size: 32px;">
+                    ${homeLogo}<br>${homeName}<br><span style="font-size: 48px; font-weight: bold;">${home.score}</span>
                 </div>
             `;
             gamesContainer.appendChild(gameCard);
