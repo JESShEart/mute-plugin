@@ -408,15 +408,15 @@
             }
 
             // Set score display: inline for non-winners, with bullet for winners
-            let awayScoreDisplay = isNotStarted ? '' : away.score;
-            let homeScoreDisplay = isNotStarted ? '' : home.score;
+            let awayScoreDisplay = isNotStarted ? '' : `<span style="font-size: 48px;">${away.score}</span>`;
+            let homeScoreDisplay = isNotStarted ? '' : `<span style="font-size: 48px;">${home.score}</span>`;
             if (isFinal || isInProgress) {
                 const awayScoreNum = parseInt(away.score) || 0;
                 const homeScoreNum = parseInt(home.score) || 0;
                 if (away.winner) {
-                    awayScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span style="font-size: 32px; font-weight: bold;">${away.score}</span></div>`;
+                    awayScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span style="font-size: 48px; font-weight: bold;">${away.score}</span></div>`;
                 } else if (home.winner) {
-                    homeScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span style="font-size: 32px; font-weight: bold;">${home.score}</span></div>`;
+                    homeScoreDisplay = `<div class="score-container"><span class="bullet">•</span><span style="font-size: 48px; font-weight: bold;">${home.score}</span></div>`;
                 }
             }
 
