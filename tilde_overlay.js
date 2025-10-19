@@ -135,14 +135,14 @@
 
             let middleContent = '';
             if (isFinal) {
-                middleContent = `<div class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</div><div>Final</div>`;
+                middleContent = `<div class="middle-content">${leftIndicator} @ ${rightIndicator}</div><div>Final</div>`;
             } else if (isInProgress) {
                 const quarterStr = getQuarterDisplay(status.period, status.displayClock);
                 const quarterLine = (quarterStr === "Halftime") ? "Halftime" : `${quarterStr} ${status.displayClock}`;
                 const downParts = (competition.situation.downDistanceText || '').split(' at ');
                 const downText = downParts[0] || '';
                 const yardageText = downParts[1] || '';
-                middleContent = `<div><span class="middle-content"><span class="hidden-indicator">${leftIndicator}</span> @ ${rightIndicator}</span></div><div>${quarterLine}</div><div>${downText}</div>${yardageText ? `<div>on ${yardageText}</div>` : ''}`;
+                middleContent = `<div><span class="middle-content">${leftIndicator} @ ${rightIndicator}</span></div><div>${quarterLine}</div><div>${downText}</div>${yardageText ? `<div>on ${yardageText}</div>` : ''}`;
             } else {
                 const gameDate = new Date(event.date);
                 if (!isNaN(gameDate.getTime())) {
