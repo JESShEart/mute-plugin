@@ -125,7 +125,7 @@
                 }
                 .bullet {
                     position: absolute;
-                    left: -10px; /* Maintains adjusted spacing */
+                    left: -19px;
                     font-size: 48px;
                     font-weight: bold;
                 }
@@ -382,8 +382,8 @@
             } else {
                 const gameDate = new Date(event.date);
                 if (!isNaN(gameDate.getTime())) {
-                    const options = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true };
-                    const localTime = gameDate.toLocaleTimeString('en-US', options);
+                    const options = { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true };
+                    const localTime = gameDate.toLocaleTimeString('en-US', options).replace(/^0/, '');
                     const dateStr = gameDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
                     middleContent = `<span style="font-size: 40px;">@</span><br>${dateStr}<br>${localTime}`;
                 } else {
