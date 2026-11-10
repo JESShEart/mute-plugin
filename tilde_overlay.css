@@ -6,8 +6,11 @@
     height: 100%;
     z-index: 1002;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    /* "safe" keeps the top/left reachable by scrolling if the grid ever
+       hits the minimum zoom and can't fit */
+    justify-content: safe center;
+    align-items: safe center;
+    overflow: auto;
     color: #fff;
     font-family: Arial, sans-serif;
     background-color: transparent;
@@ -30,15 +33,16 @@
     font-size: 36px;
 }
 
+/* Cards are laid out at a fixed design size; tilde_overlay.js sets this
+   container's width (column count) and CSS zoom so it fills the player. */
 .games-container {
     display: flex;
     flex-wrap: wrap;
+    flex: none;
     justify-content: center;
     align-items: center;
     gap: 40px;
     padding: 40px;
-    max-height: 100vh;
-    overflow-y: auto;
     box-sizing: border-box;
 }
 
@@ -47,6 +51,7 @@
     border-radius: 16px;
     padding: 20px;
     width: 500px;
+    flex: none;
     text-align: center;
     display: flex;
     flex-direction: row;
@@ -90,8 +95,45 @@
     padding-top: 20px;
 }
 
+/* "[icon] @ [icon]" row: fixed height and no wrapping, so it's identical on
+   every platform and in every game state */
 .middle-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25em;
     font-size: 40px;
+    line-height: 1;
+    height: 1.15em;
+    white-space: nowrap;
+}
+
+/* Fixed-size box for an emoji; the platform's emoji is drawn to a canvas
+   and scaled to fit inside it (see rasterizeEmoji in tilde_overlay.js) */
+.emoji-icon {
+    display: block;
+    flex: none;
+    width: 1em;
+    height: 1em;
+}
+
+.emoji-icon > canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Fallback if the emoji couldn't be drawn to a canvas: still a fixed box,
+   the glyph may overflow visually but can't move anything around it */
+.emoji-icon--text {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-size: 0.85em;
+    width: 1.18em;
+    height: 1.18em;
+    line-height: 1.18em;
+    text-align: center;
+    overflow: visible;
 }
 
 .score {
@@ -116,10 +158,6 @@
 
 .winner {
     font-weight: bold;
-}
-
-.hidden-indicator {
-    visibility: hidden;
 }
 
 @keyframes spin {
