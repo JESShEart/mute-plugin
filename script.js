@@ -3,8 +3,15 @@
 
     let hidden = false;
 
+    // Remove Spectrum's <mini-guide> sidebar: it's easy to trigger by accident,
+    // and removing it also keeps the top/bottom player overlays from popping up.
+    function removeMiniGuide() {
+        document.querySelectorAll('mini-guide').forEach(el => el.remove());
+    }
+
     // Observe for player changes
     const observer = new MutationObserver(() => {
+        removeMiniGuide();
         if (muteOverlay.getVideoElement()) {
             muteOverlay.appendCoverToPlayer();
             if (!muteOverlay.isMuted()) {
@@ -85,5 +92,6 @@
     }
 
     // Initialize player state on load
+    removeMiniGuide();
     muteOverlay.initializePlayer();
 })();
